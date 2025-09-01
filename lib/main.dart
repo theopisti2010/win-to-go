@@ -3,7 +3,7 @@ import 'root_scaffold.dart';
 import 'strings.dart';
 
 void main() {
-  runApp(const WinToGoApp());
+  runAppWin To Go 🚀(const ());
 }
 
 class WinToGoApp extends StatelessWidget {

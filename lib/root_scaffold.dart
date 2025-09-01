@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'services/session.dart';
+import 'models/role.dart';
 
 // Σελίδες
 import 'pages/home.dart';
@@ -17,15 +19,41 @@ class RootScaffold extends StatefulWidget {
 
 class _RootScaffoldState extends State<RootScaffold> {
   int _index = 0;
-  final bool isPro = false; // TODO: θα διαβάζουμε ρόλο/άδεια αργότερα
+  UserRole _role = UserRole.consumer;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRole();
+  }
+
+  Future<void> _loadRole() async {
+    final r = await SessionService().getRole();
+    if (mounted) {
+      setState(() {
+        _role = r;
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // ⚠️ ΧΩΡΙΣ const στα widgets που ίσως δεν έχουν const constructors
+    if (_loading) {
+      return const Scaffold(
+        body: SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    final isPro = _role == UserRole.pro;
+
     final pages = <Widget>[
       HomePage(),
       SearchPage(),
-      if (isPro) CreatePage(),
+      if (isPro) CreatePage(), // μόνο για επαγγελματία
       MyPage(),
       ProfilePage(),
     ];
