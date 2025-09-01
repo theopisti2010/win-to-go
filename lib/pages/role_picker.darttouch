@@ -1,0 +1,76 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../constants.dart';
+import '../strings.dart';
+import 'auth.dart';
+
+class RolePickerScreen extends StatelessWidget {
+  const RolePickerScreen({super.key});
+
+  Future<void> _saveRole(UserRole role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(kUserRole, role == UserRole.pro ? 'pro' : 'consumer');
+  }
+
+  void _go(BuildContext context, UserRole role) async {
+    await _saveRole(role);
+    if (!context.mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => AuthScreen(role: role)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    Widget card(IconData icon, String title, String subtitle, VoidCallback onTap) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(icon, size: 36),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 4),
+                      Text(subtitle),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text(AppStrings.chooseRole)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            card(Icons.store_mall_directory, AppStrings.rolePro, AppStrings.roleProDesc,
+                () => _go(context, UserRole.pro)),
+            const SizedBox(height: 12),
+            card(Icons.emoji_events, AppStrings.roleConsumer, AppStrings.roleConsumerDesc,
+                () => _go(context, UserRole.consumer)),
+          ],
+        ),
+      ),
+    );
+  }
+}
